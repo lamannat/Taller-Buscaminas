@@ -10,7 +10,7 @@ pub struct MatrizBuscaminas {
 const ASTERISCO_BYTE: u8 = b'*';
 
 /// Constante que representa el valor del  byte del caracter '·' en ASCII
-const INTERDOT_BYTE: u8 =  b'\xB7';
+const INTERDOT_BYTE: u8 = b'\xB7';
 
 impl MatrizBuscaminas {
     /// Devuelve una MatrizBuscaminas vacia.
@@ -25,13 +25,13 @@ impl MatrizBuscaminas {
     /// Metodo público que permite llenar una matriz vacia a partir de un arreglo
     /// de u8 compuesto por '*' representando bombas y '·' representando celdas vacias.
     /// Tambien genera una fila por cada salto de linea.
-    /// 
+    ///
     /// # Argumentos
     ///
     /// * `bytes` - Arreglo de u8 con los caracteres que representan un juego de buscaminas.
-    /// 
+    ///
     /// #Ejemplo
-    /// 
+    ///
     /// ```
     /// let bytes = [b'*', b'\xB7', b'*' , b'\xB7', b'\n']
     /// let mut matriz = MatrizBuscaminas::new();
@@ -53,9 +53,9 @@ impl MatrizBuscaminas {
 
     /// Metodo público que permite completar las celdas vacias de una MatrizBuscaminas con el número correspondiente
     /// segun la cantidad de bombas adyacentes.
-    /// 
+    ///
     /// #Ejemplo
-    /// 
+    ///
     /// ```
     /// matriz.contar_bombas();
     /// ```
@@ -69,9 +69,9 @@ impl MatrizBuscaminas {
 
     /// Metodo público que permite imprimir por salida estandar una MatrizBuscaminas
     /// con el formato del tablero de buscaminas.
-    /// 
+    ///
     /// #Ejemplo
-    /// 
+    ///
     /// ```
     /// let bytes = [b'*', b'\xB7', b'*' , b'\xB7', b'\n']
     /// let mut matriz = MatrizBuscaminas::new();
@@ -102,7 +102,7 @@ impl MatrizBuscaminas {
     }
 
     /// Función interna del módulo.
-    /// Cuenta la cantidad de columnas de un arreglo de u8 a partir de la 
+    /// Cuenta la cantidad de columnas de un arreglo de u8 a partir de la
     /// cantidad de caracteres hasta el primer salto de linea.
     fn contar_columnas(bytes: &[u8]) -> i32 {
         let mut columnas = 0;
@@ -117,7 +117,7 @@ impl MatrizBuscaminas {
     }
 
     /// Función interna del módulo.
-    /// Cuenta la cantidad de filas de un arreglo de u8 a partir de la 
+    /// Cuenta la cantidad de filas de un arreglo de u8 a partir de la
     /// cantidad de saltos de linea.
     fn contar_filas(bytes: &[u8]) -> i32 {
         let mut filas = 0;
@@ -131,7 +131,7 @@ impl MatrizBuscaminas {
 
     /// Función interna del módulo.
     /// Aumenta en 1 el valor de las celdas adyacentes a una celda dada por el
-    /// indice en el vector valores de la MatrizBuscaminas. 
+    /// indice en el vector valores de la MatrizBuscaminas.
     fn aumentar_adyacentes(&mut self, i: i32) {
         let coord = Self::obtener_coordenadas(i, self.columnas);
         let celdas_a_aumentar = [
@@ -151,7 +151,7 @@ impl MatrizBuscaminas {
 
     /// Función interna del módulo.
     /// Aumenta en 1 el valor de la celda indicada en caso que se encuentre dentro del
-    /// tablero y no sea una celda con una mina. 
+    /// tablero y no sea una celda con una mina.
     fn aumentar_celda(&mut self, celda: (i32, i32)) {
         if celda.0 < 0 || celda.0 >= self.filas || celda.1 < 0 || celda.1 >= self.columnas {
             return;

@@ -22,11 +22,11 @@ fn main() {
 /// Abre el archivo indicado como argumento al ejecutar el programa.
 /// El argumento debe ser el path al archivo incluyendo el nombre del archivo
 /// desde la carpeta raiz en la que se ejecute el programa.
-/// 
+///
 /// Devuelve un Result<String, Error>, siendo el String el contenido del archivo y el Error el devuelto por fs::read_to_string.
-/// 
+///
 /// #Ejemplo
-/// 
+///
 /// ```
 /// let contenido_result = abrir_archivo();
 /// let contenido = match contenido_result {

@@ -9,9 +9,11 @@ pub struct MatrizBuscaminas {
 /// Constante que representa el valor del byte del caracter '*' en ASCII
 const ASTERISCO_BYTE: u8 = b'*';
 
-/// Constante que representa el valor del  byte del caracter '·' en ASCII
+/// Constantes que representan el valor del  byte del caracter '·' en ASCII
 const INTERDOT_FIRST_BYTE: u8 = b'\xC2';
 const INTERDOT_SECOND_BYTE: u8 = b'\xB7';
+
+const DOT_BYTE: u8 = b'.';
 
 const LINE_FEED_BYTE: u8 = b'\n';
 const CARRY_RETURN_BYTE: u8 = b'\r';
@@ -43,21 +45,23 @@ impl MatrizBuscaminas {
     /// ```
     pub fn popular_desde_bytes(&mut self, bytes: &[u8]) -> Result<(), String>{
         self.columnas = Self::contar_columnas(bytes);
+        if !Self::validar_cantidad_columnas(bytes, self.columnas){
+            return Err("Mapa invalido, debe ser cuadrado o rectangular".to_owned())
+        }
         self.filas = Self::contar_filas(bytes);
 
         for byte in bytes {
             if *byte == ASTERISCO_BYTE {
                 self.valores.push(-1)
             }
-            else if *byte == INTERDOT_FIRST_BYTE{
+            else if *byte == INTERDOT_FIRST_BYTE || *byte == DOT_BYTE{
                 self.valores.push(0)
             }
             else if *byte == LINE_FEED_BYTE || *byte == CARRY_RETURN_BYTE || *byte == INTERDOT_SECOND_BYTE{
                 continue;
             }
             else {
-                print!("caracter encontrado: {}", *byte);
-                return Err("Caracter invalido. El tablero debe estar compuesto por “.” o “*”".to_owned())
+                return Err("Caracter invalido. El tablero debe estar compuesto por “·” o “*”".to_owned())
             }
         }
         return Ok(())
@@ -121,11 +125,26 @@ impl MatrizBuscaminas {
         for byte in bytes {
             if *byte == (b'\n') {
                 break;
-            } else if *byte == INTERDOT_SECOND_BYTE || *byte == ASTERISCO_BYTE {
+            } else if *byte == INTERDOT_FIRST_BYTE || *byte == ASTERISCO_BYTE || *byte == DOT_BYTE {
                 columnas += 1;
             }
         }
         columnas
+    }
+
+    fn validar_cantidad_columnas(bytes: &[u8], columnas: i32) -> bool {
+        let mut contador = 0;
+        for byte in bytes {
+            if *byte == (b'\n') {
+                if contador != columnas {
+                    return false
+                }
+                contador = 0;
+            } else if *byte == INTERDOT_FIRST_BYTE || *byte == ASTERISCO_BYTE || *byte == DOT_BYTE {
+                contador += 1;
+            }
+        }
+        true
     }
 
     /// Función interna del módulo.
@@ -200,7 +219,13 @@ mod tests {
     fn test_popular_desde_bytes_agrega_menos_uno_si_encuentra_asterisco() {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [ASTERISCO_BYTE];
-        matriz.popular_desde_bytes(&bytes);
+        match matriz.popular_desde_bytes(&bytes) {
+            Ok(()) => {},
+            Err(error) => {
+                print!("Error al parsear archivo a tablero: {}", error);
+                return;
+            }
+        }
         assert_eq!(matriz.valores.len(), 1);
         assert_eq!(matriz.valores[0], -1);
     }
@@ -208,8 +233,14 @@ mod tests {
     #[test]
     fn test_popular_desde_bytes_agrega_cero_si_encuentra_punto() {
         let mut matriz = MatrizBuscaminas::new();
-        let bytes = [INTERDOT_BYTE];
-        matriz.popular_desde_bytes(&bytes);
+        let bytes = [INTERDOT_FIRST_BYTE];
+        match matriz.popular_desde_bytes(&bytes) {
+            Ok(()) => {},
+            Err(error) => {
+                print!("Error al parsear archivo a tablero: {}", error);
+                return;
+            }
+        }
         assert_eq!(matriz.valores.len(), 1);
         assert_eq!(matriz.valores[0], 0);
     }
@@ -218,7 +249,13 @@ mod tests {
     fn test_popular_desde_bytes_agrega_fila_si_encuentra_salto_de_linea() {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [b'\n', b'\n', b'\n'];
-        matriz.popular_desde_bytes(&bytes);
+        match matriz.popular_desde_bytes(&bytes) {
+            Ok(()) => {},
+            Err(error) => {
+                print!("Error al parsear archivo a tablero: {}", error);
+                return;
+            }
+        }
         assert_eq!(matriz.valores.len(), 0);
         assert_eq!(matriz.filas, 3);
     }
@@ -226,8 +263,14 @@ mod tests {
     #[test]
     fn test_popular_desde_bytes_agrega_columnas_si_no_encuentra_salto_de_linea() {
         let mut matriz = MatrizBuscaminas::new();
-        let bytes = [INTERDOT_BYTE, INTERDOT_BYTE];
-        matriz.popular_desde_bytes(&bytes);
+        let bytes = [INTERDOT_FIRST_BYTE, INTERDOT_FIRST_BYTE];
+        match matriz.popular_desde_bytes(&bytes) {
+            Ok(()) => {},
+            Err(error) => {
+                print!("Error al parsear archivo a tablero: {}", error);
+                return;
+            }
+        }
         assert_eq!(matriz.valores.len(), 2);
         assert_eq!(matriz.columnas, 2);
     }
@@ -235,8 +278,14 @@ mod tests {
     #[test]
     fn test_contar_bombas_suma_adyacentes_horizontales() {
         let mut matriz = MatrizBuscaminas::new();
-        let bytes = [INTERDOT_BYTE, ASTERISCO_BYTE, INTERDOT_BYTE, b'\n'];
-        matriz.popular_desde_bytes(&bytes);
+        let bytes = [INTERDOT_FIRST_BYTE, ASTERISCO_BYTE, INTERDOT_FIRST_BYTE, b'\n'];
+        match matriz.popular_desde_bytes(&bytes) {
+            Ok(()) => {},
+            Err(error) => {
+                print!("Error al parsear archivo a tablero: {}", error);
+                return;
+            }
+        }
         matriz.contar_bombas();
         assert_eq!(matriz.valores[0], 1);
         assert_eq!(matriz.valores[2], 1);
@@ -246,14 +295,20 @@ mod tests {
     fn test_contar_bombas_suma_adyacentes_verticales() {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [
-            INTERDOT_BYTE,
+            INTERDOT_FIRST_BYTE,
             b'\n',
             ASTERISCO_BYTE,
             b'\n',
-            INTERDOT_BYTE,
+            INTERDOT_FIRST_BYTE,
             b'\n',
         ];
-        matriz.popular_desde_bytes(&bytes);
+        match matriz.popular_desde_bytes(&bytes) {
+            Ok(()) => {},
+            Err(error) => {
+                print!("Error al parsear archivo a tablero: {}", error);
+                return;
+            }
+        }
         matriz.contar_bombas();
         assert_eq!(matriz.valores[0], 1);
         assert_eq!(matriz.valores[2], 1);
@@ -263,17 +318,23 @@ mod tests {
     fn test_contar_bombas_suma_adyacentes_diagonales() {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [
-            INTERDOT_BYTE,
-            INTERDOT_BYTE,
+            INTERDOT_FIRST_BYTE,
+            INTERDOT_FIRST_BYTE,
             b'\n',
             ASTERISCO_BYTE,
-            INTERDOT_BYTE,
+            INTERDOT_FIRST_BYTE,
             b'\n',
-            INTERDOT_BYTE,
-            INTERDOT_BYTE,
+            INTERDOT_FIRST_BYTE,
+            INTERDOT_FIRST_BYTE,
             b'\n',
         ];
-        matriz.popular_desde_bytes(&bytes);
+        match matriz.popular_desde_bytes(&bytes) {
+            Ok(()) => {},
+            Err(error) => {
+                print!("Error al parsear archivo a tablero: {}", error);
+                return;
+            }
+        }
         matriz.contar_bombas();
         assert_eq!(matriz.valores[1], 1);
         assert_eq!(matriz.valores[5], 1);
@@ -282,8 +343,14 @@ mod tests {
     #[test]
     fn test_contar_bombas_suma_corectamente_dos_bombas() {
         let mut matriz = MatrizBuscaminas::new();
-        let bytes = [ASTERISCO_BYTE, INTERDOT_BYTE, ASTERISCO_BYTE, b'\n'];
-        matriz.popular_desde_bytes(&bytes);
+        let bytes = [ASTERISCO_BYTE, INTERDOT_FIRST_BYTE, ASTERISCO_BYTE, b'\n'];
+        match matriz.popular_desde_bytes(&bytes) {
+            Ok(()) => {},
+            Err(error) => {
+                print!("Error al parsear archivo a tablero: {}", error);
+                return;
+            }
+        }
         matriz.contar_bombas();
         assert_eq!(matriz.valores[1], 2);
     }
@@ -293,14 +360,20 @@ mod tests {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [
             ASTERISCO_BYTE,
-            INTERDOT_BYTE,
+            INTERDOT_FIRST_BYTE,
             ASTERISCO_BYTE,
             b'\n',
-            INTERDOT_BYTE,
+            INTERDOT_FIRST_BYTE,
             ASTERISCO_BYTE,
-            INTERDOT_BYTE,
+            INTERDOT_FIRST_BYTE,
         ];
-        matriz.popular_desde_bytes(&bytes);
+        match matriz.popular_desde_bytes(&bytes) {
+            Ok(()) => {},
+            Err(error) => {
+                print!("Error al parsear archivo a tablero: {}", error);
+                return;
+            }
+        }
         matriz.contar_bombas();
         assert_eq!(matriz.valores[1], 3);
     }

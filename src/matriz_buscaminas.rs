@@ -10,7 +10,11 @@ pub struct MatrizBuscaminas {
 const ASTERISCO_BYTE: u8 = b'*';
 
 /// Constante que representa el valor del  byte del caracter '·' en ASCII
-const INTERDOT_BYTE: u8 = b'\xB7';
+const INTERDOT_FIRST_BYTE: u8 = b'\xC2';
+const INTERDOT_SECOND_BYTE: u8 = b'\xB7';
+
+const LINE_FEED_BYTE: u8 = b'\n';
+const CARRY_RETURN_BYTE: u8 = b'\r';
 
 impl MatrizBuscaminas {
     /// Devuelve una MatrizBuscaminas vacia.
@@ -37,7 +41,7 @@ impl MatrizBuscaminas {
     /// let mut matriz = MatrizBuscaminas::new();
     /// matriz.popular_desde_bytes(bytes);
     /// ```
-    pub fn popular_desde_bytes(&mut self, bytes: &[u8]) {
+    pub fn popular_desde_bytes(&mut self, bytes: &[u8]) -> Result<(), String>{
         self.columnas = Self::contar_columnas(bytes);
         self.filas = Self::contar_filas(bytes);
 
@@ -45,10 +49,18 @@ impl MatrizBuscaminas {
             if *byte == ASTERISCO_BYTE {
                 self.valores.push(-1)
             }
-            if *byte == INTERDOT_BYTE {
+            else if *byte == INTERDOT_FIRST_BYTE{
                 self.valores.push(0)
             }
+            else if *byte == LINE_FEED_BYTE || *byte == CARRY_RETURN_BYTE || *byte == INTERDOT_SECOND_BYTE{
+                continue;
+            }
+            else {
+                print!("caracter encontrado: {}", *byte);
+                return Err("Caracter invalido. El tablero debe estar compuesto por “.” o “*”".to_owned())
+            }
         }
+        return Ok(())
     }
 
     /// Metodo público que permite completar las celdas vacias de una MatrizBuscaminas con el número correspondiente
@@ -109,7 +121,7 @@ impl MatrizBuscaminas {
         for byte in bytes {
             if *byte == (b'\n') {
                 break;
-            } else if *byte == INTERDOT_BYTE || *byte == ASTERISCO_BYTE {
+            } else if *byte == INTERDOT_SECOND_BYTE || *byte == ASTERISCO_BYTE {
                 columnas += 1;
             }
         }

@@ -15,7 +15,7 @@ fn main() {
 
     let mut tablero_matriz = matriz_buscaminas::MatrizBuscaminas::new();
     match tablero_matriz.popular_desde_bytes(tablero_bytes) {
-        Ok(()) => {},
+        Ok(()) => {}
         Err(error) => {
             print!("Error al parsear archivo a tablero: {}", error);
             return;
@@ -29,7 +29,7 @@ fn main() {
 /// El argumento debe ser el path al archivo incluyendo el nombre del archivo
 /// desde la carpeta raiz en la que se ejecute el programa.
 ///
-/// Devuelve un Result<String, Error>, siendo el String el contenido del archivo y Error en caso de que la cantidad de argumentos de entrada no sea la correcta, o 
+/// Devuelve un Result<String, Error>, siendo el String el contenido del archivo y Error en caso de que la cantidad de argumentos de entrada no sea la correcta, o
 /// el error devuelto por fs::read_to_string si no se puede leer el archivo.
 ///
 /// #Ejemplo
@@ -47,7 +47,10 @@ fn main() {
 fn abrir_archivo() -> Result<String, std::io::Error> {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
-        return Err(std::io::Error::new(std::io::ErrorKind::Other, "Cantidad de argumentos invalida"))
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Cantidad de argumentos invalida",
+        ));
     }
     let archivo = &args[1];
     fs::read_to_string(archivo)

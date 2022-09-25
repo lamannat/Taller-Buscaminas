@@ -43,28 +43,29 @@ impl MatrizBuscaminas {
     /// let mut matriz = MatrizBuscaminas::new();
     /// matriz.popular_desde_bytes(bytes);
     /// ```
-    pub fn popular_desde_bytes(&mut self, bytes: &[u8]) -> Result<(), String>{
-        self.columnas = Self::contar_columnas(bytes);
-        if !Self::validar_cantidad_columnas(bytes, self.columnas){
-            return Err("Mapa invalido, debe ser cuadrado o rectangular".to_owned())
-        }
+    pub fn popular_desde_bytes(&mut self, bytes: &[u8]) -> Result<(), String> {
         self.filas = Self::contar_filas(bytes);
-
+        self.columnas = Self::contar_columnas(bytes);
+        if !Self::validar_cantidad_columnas(bytes, self.columnas) {
+            return Err("Mapa invalido, debe ser cuadrado o rectangular".to_owned());
+        }
         for byte in bytes {
             if *byte == ASTERISCO_BYTE {
                 self.valores.push(-1)
-            }
-            else if *byte == INTERDOT_FIRST_BYTE || *byte == DOT_BYTE{
+            } else if *byte == INTERDOT_FIRST_BYTE || *byte == DOT_BYTE {
                 self.valores.push(0)
-            }
-            else if *byte == LINE_FEED_BYTE || *byte == CARRY_RETURN_BYTE || *byte == INTERDOT_SECOND_BYTE{
+            } else if *byte == LINE_FEED_BYTE
+                || *byte == CARRY_RETURN_BYTE
+                || *byte == INTERDOT_SECOND_BYTE
+            {
                 continue;
-            }
-            else {
-                return Err("Caracter invalido. El tablero debe estar compuesto por “·” o “*”".to_owned())
+            } else {
+                return Err(
+                    "Caracter invalido. El tablero debe estar compuesto por “·” o “*”".to_owned(),
+                );
             }
         }
-        return Ok(())
+        Ok(())
     }
 
     /// Metodo público que permite completar las celdas vacias de una MatrizBuscaminas con el número correspondiente
@@ -137,12 +138,15 @@ impl MatrizBuscaminas {
         for byte in bytes {
             if *byte == (b'\n') {
                 if contador != columnas {
-                    return false
+                    return false;
                 }
                 contador = 0;
             } else if *byte == INTERDOT_FIRST_BYTE || *byte == ASTERISCO_BYTE || *byte == DOT_BYTE {
                 contador += 1;
             }
+        }
+        if contador != columnas {
+            return false;
         }
         true
     }
@@ -152,10 +156,16 @@ impl MatrizBuscaminas {
     /// cantidad de saltos de linea.
     fn contar_filas(bytes: &[u8]) -> i32 {
         let mut filas = 0;
+        let mut contador = 1;
         for byte in bytes {
             if *byte == (b'\n') {
                 filas += 1;
             }
+            if contador == bytes.len() && *byte != (b'\n') {
+                filas += 1;
+                [bytes, &[b'\n']].concat();
+            }
+            contador += 1;
         }
         filas
     }
@@ -220,7 +230,7 @@ mod tests {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [ASTERISCO_BYTE];
         match matriz.popular_desde_bytes(&bytes) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 print!("Error al parsear archivo a tablero: {}", error);
                 return;
@@ -235,7 +245,7 @@ mod tests {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [INTERDOT_FIRST_BYTE];
         match matriz.popular_desde_bytes(&bytes) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 print!("Error al parsear archivo a tablero: {}", error);
                 return;
@@ -250,7 +260,7 @@ mod tests {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [b'\n', b'\n', b'\n'];
         match matriz.popular_desde_bytes(&bytes) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 print!("Error al parsear archivo a tablero: {}", error);
                 return;
@@ -265,7 +275,7 @@ mod tests {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [INTERDOT_FIRST_BYTE, INTERDOT_FIRST_BYTE];
         match matriz.popular_desde_bytes(&bytes) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 print!("Error al parsear archivo a tablero: {}", error);
                 return;
@@ -278,9 +288,14 @@ mod tests {
     #[test]
     fn test_contar_bombas_suma_adyacentes_horizontales() {
         let mut matriz = MatrizBuscaminas::new();
-        let bytes = [INTERDOT_FIRST_BYTE, ASTERISCO_BYTE, INTERDOT_FIRST_BYTE, b'\n'];
+        let bytes = [
+            INTERDOT_FIRST_BYTE,
+            ASTERISCO_BYTE,
+            INTERDOT_FIRST_BYTE,
+            b'\n',
+        ];
         match matriz.popular_desde_bytes(&bytes) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 print!("Error al parsear archivo a tablero: {}", error);
                 return;
@@ -303,7 +318,7 @@ mod tests {
             b'\n',
         ];
         match matriz.popular_desde_bytes(&bytes) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 print!("Error al parsear archivo a tablero: {}", error);
                 return;
@@ -329,7 +344,7 @@ mod tests {
             b'\n',
         ];
         match matriz.popular_desde_bytes(&bytes) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 print!("Error al parsear archivo a tablero: {}", error);
                 return;
@@ -345,7 +360,7 @@ mod tests {
         let mut matriz = MatrizBuscaminas::new();
         let bytes = [ASTERISCO_BYTE, INTERDOT_FIRST_BYTE, ASTERISCO_BYTE, b'\n'];
         match matriz.popular_desde_bytes(&bytes) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 print!("Error al parsear archivo a tablero: {}", error);
                 return;
@@ -368,7 +383,7 @@ mod tests {
             INTERDOT_FIRST_BYTE,
         ];
         match matriz.popular_desde_bytes(&bytes) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(error) => {
                 print!("Error al parsear archivo a tablero: {}", error);
                 return;

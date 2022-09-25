@@ -9,14 +9,9 @@ pub struct MatrizBuscaminas {
 /// Constante que representa el valor del byte del caracter '*' en ASCII
 const ASTERISCO_BYTE: u8 = b'*';
 
-/// Constantes que representan el valor del  byte del caracter '·' en ASCII
+/// Constantes que representan el valor del byte del caracter '·' en ASCII
 const INTERDOT_FIRST_BYTE: u8 = b'\xC2';
-const INTERDOT_SECOND_BYTE: u8 = b'\xB7';
-
 const DOT_BYTE: u8 = b'.';
-
-const LINE_FEED_BYTE: u8 = b'\n';
-const CARRY_RETURN_BYTE: u8 = b'\r';
 
 impl MatrizBuscaminas {
     /// Devuelve una MatrizBuscaminas vacia.
@@ -39,30 +34,21 @@ impl MatrizBuscaminas {
     /// #Ejemplo
     ///
     /// ```
-    /// let bytes = [b'*', b'\xB7', b'*' , b'\xB7', b'\n']
+    /// let bytes = [b'*', b'.', b'*' , b'.', b'\n']
     /// let mut matriz = MatrizBuscaminas::new();
     /// matriz.popular_desde_bytes(bytes);
     /// ```
     pub fn popular_desde_bytes(&mut self, bytes: &[u8]) -> Result<(), String> {
         self.filas = Self::contar_filas(bytes);
         self.columnas = Self::contar_columnas(bytes);
-        if !Self::validar_cantidad_columnas(bytes, self.columnas) {
-            return Err("Mapa invalido, debe ser cuadrado o rectangular".to_owned());
+        if !Self::validar_mapa(bytes, self.columnas) {
+            return Err("Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”".to_owned());
         }
         for byte in bytes {
             if *byte == ASTERISCO_BYTE {
                 self.valores.push(-1)
             } else if *byte == INTERDOT_FIRST_BYTE || *byte == DOT_BYTE {
                 self.valores.push(0)
-            } else if *byte == LINE_FEED_BYTE
-                || *byte == CARRY_RETURN_BYTE
-                || *byte == INTERDOT_SECOND_BYTE
-            {
-                continue;
-            } else {
-                return Err(
-                    "Caracter invalido. El tablero debe estar compuesto por “·” o “*”".to_owned(),
-                );
             }
         }
         Ok(())
@@ -90,7 +76,7 @@ impl MatrizBuscaminas {
     /// #Ejemplo
     ///
     /// ```
-    /// let bytes = [b'*', b'\xB7', b'*' , b'\xB7', b'\n']
+    /// let bytes = [b'*', b'.', b'*' , b'.', b'\n']
     /// let mut matriz = MatrizBuscaminas::new();
     /// matriz.popular_desde_bytes(&bytes);
     /// matriz.contar_bombas();
@@ -133,7 +119,7 @@ impl MatrizBuscaminas {
         columnas
     }
 
-    fn validar_cantidad_columnas(bytes: &[u8], columnas: i32) -> bool {
+    fn validar_mapa(bytes: &[u8], columnas: i32) -> bool {
         let mut contador = 0;
         for byte in bytes {
             if *byte == (b'\n') {

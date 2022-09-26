@@ -11,6 +11,7 @@ const ASTERISCO_BYTE: u8 = b'*';
 
 /// Constantes que representan el valor del byte del caracter '·' en ASCII
 const INTERDOT_FIRST_BYTE: u8 = b'\xC2';
+const INTERDOT_SECOND_BYTE: u8 = b'\xB7';
 const DOT_BYTE: u8 = b'.';
 
 impl MatrizBuscaminas {
@@ -42,7 +43,10 @@ impl MatrizBuscaminas {
         self.filas = Self::contar_filas(bytes);
         self.columnas = Self::contar_columnas(bytes);
         if !Self::validar_mapa(bytes, self.columnas) {
-            return Err("Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”".to_owned());
+            return Err(
+                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”"
+                    .to_owned(),
+            );
         }
         for byte in bytes {
             if *byte == ASTERISCO_BYTE {
@@ -129,6 +133,10 @@ impl MatrizBuscaminas {
                 contador = 0;
             } else if *byte == INTERDOT_FIRST_BYTE || *byte == ASTERISCO_BYTE || *byte == DOT_BYTE {
                 contador += 1;
+            } else if *byte == INTERDOT_SECOND_BYTE || *byte == (b'\r') {
+                continue;
+            } else {
+                return false;
             }
         }
         if contador != columnas {

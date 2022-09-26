@@ -44,7 +44,7 @@ impl MatrizBuscaminas {
         self.columnas = Self::contar_columnas(bytes);
         if !Self::validar_mapa(bytes, self.columnas) {
             return Err(
-                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”"
+                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”\n"
                     .to_owned(),
             );
         }
@@ -136,6 +136,7 @@ impl MatrizBuscaminas {
             } else if *byte == INTERDOT_SECOND_BYTE || *byte == (b'\r') {
                 continue;
             } else {
+                print!("caracter encontrado: {:?}", *byte);
                 return false;
             }
         }

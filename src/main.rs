@@ -7,7 +7,7 @@ fn main() {
     let tablero_string = match result_tablero_string {
         Ok(contenido_archivo) => contenido_archivo,
         Err(error) => {
-            print!("No se pudo abrir el archivo: {}", error);
+            println!("No se pudo abrir el archivo: {}", error);
             return;
         }
     };
@@ -17,7 +17,7 @@ fn main() {
     match tablero_matriz.popular_desde_bytes(tablero_bytes) {
         Ok(()) => {}
         Err(error) => {
-            print!("Error al parsear archivo a tablero: {}", error);
+            println!("Error al parsear archivo a tablero: {}\n", error);
             return;
         }
     }

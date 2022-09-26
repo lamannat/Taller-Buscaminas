@@ -9,9 +9,12 @@ pub struct MatrizBuscaminas {
 /// Constante que representa el valor del byte del caracter '*' en ASCII
 const ASTERISCO_BYTE: u8 = b'*';
 
-/// Constantes que representan el valor del byte del caracter '·' en ASCII
+/// Constante que representa el valor del primer byte del caracter '·' en ASCII
 const INTERDOT_FIRST_BYTE: u8 = b'\xC2';
+/// Constante que representa el valor del segundo byte del caracter '·' en ASCII
 const INTERDOT_SECOND_BYTE: u8 = b'\xB7';
+
+/// Constantes que representan el valor del byte del caracter '.' en ASCII
 const DOT_BYTE: u8 = b'.';
 
 impl MatrizBuscaminas {
@@ -25,8 +28,10 @@ impl MatrizBuscaminas {
     }
 
     /// Metodo público que permite llenar una matriz vacia a partir de un arreglo
-    /// de u8 compuesto por '*' representando bombas y '·' representando celdas vacias.
+    /// de u8 compuesto por '*' representando bombas y '·' o '.' representando celdas vacias.
     /// Tambien genera una fila por cada salto de linea.
+    /// Al llenar la matriz valida que los caracteres que componen el slice sean validos y que la matriz a generar sea rectangular/cuadrada.
+    /// En caso de que no se cumpla alguna de las condiciones devuelve un Result con Err.
     ///
     /// # Argumentos
     ///
@@ -37,14 +42,20 @@ impl MatrizBuscaminas {
     /// ```
     /// let bytes = [b'*', b'.', b'*' , b'.', b'\n']
     /// let mut matriz = MatrizBuscaminas::new();
-    /// matriz.popular_desde_bytes(bytes);
+    /// match matriz.popular_desde_bytes(bytes) {
+    ///     Ok(()) => {}
+    ///     Err(error) => {
+    ///         print!("Error al parsear: {}\n", error);
+    ///         return;
+    ///     }
+    /// }
     /// ```
     pub fn popular_desde_bytes(&mut self, bytes: &[u8]) -> Result<(), String> {
         self.filas = Self::contar_filas(bytes);
         self.columnas = Self::contar_columnas(bytes);
         if !Self::validar_mapa(bytes, self.columnas) {
             return Err(
-                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”\n"
+                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”"
                     .to_owned(),
             );
         }
@@ -123,6 +134,11 @@ impl MatrizBuscaminas {
         columnas
     }
 
+    /// Función interna del módulo.
+    /// Recibe un slice de u8 que representa un tablero de buscaminas, y un i32 que representa la cantidad de columnas del tablero.
+    /// Valida que se pueda crear un tablero rectangular con la cantidad de columnas indicadas, y que el tablero solo este compuesto
+    /// por caracteres '*', '·' o '.'
+    /// Devuelve un booleano indicando si se puede crear un tablero valido.
     fn validar_mapa(bytes: &[u8], columnas: i32) -> bool {
         let mut contador = 0;
         for byte in bytes {
@@ -290,7 +306,7 @@ mod tests {
         assert_eq!(
             matriz.popular_desde_bytes(&bytes),
             Err(
-                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”\n"
+                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”"
                     .to_owned()
             )
         );
@@ -303,7 +319,7 @@ mod tests {
         assert_eq!(
             matriz.popular_desde_bytes(&bytes),
             Err(
-                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”\n"
+                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”"
                     .to_owned()
             )
         );

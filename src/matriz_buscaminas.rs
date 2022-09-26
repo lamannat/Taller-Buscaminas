@@ -282,15 +282,32 @@ mod tests {
     #[test]
     fn test_popular_desde_bytes_devuelve_error_si_no_es_rectangular() {
         let mut matriz = MatrizBuscaminas::new();
-        let bytes = [INTERDOT_FIRST_BYTE, INTERDOT_FIRST_BYTE, b'\n', ASTERISCO_BYTE];
-        assert_eq!(matriz.popular_desde_bytes(&bytes), Err("Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”".to_owned()));
+        let bytes = [
+            INTERDOT_FIRST_BYTE,
+            INTERDOT_FIRST_BYTE,
+            b'\n',
+            ASTERISCO_BYTE,
+        ];
+        assert_eq!(
+            matriz.popular_desde_bytes(&bytes),
+            Err(
+                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”\n"
+                    .to_owned()
+            )
+        );
     }
 
     #[test]
     fn test_popular_desde_bytes_devuelve_error_si_hay_caracter_invalido() {
         let mut matriz = MatrizBuscaminas::new();
-        let bytes = [INTERDOT_FIRST_BYTE,  b'6'];
-        assert_eq!(matriz.popular_desde_bytes(&bytes), Err("Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”".to_owned()));
+        let bytes = [INTERDOT_FIRST_BYTE, b'6'];
+        assert_eq!(
+            matriz.popular_desde_bytes(&bytes),
+            Err(
+                "Mapa invalido, debe ser cuadrado o rectangular y estar compuesto por “·” o “*”\n"
+                    .to_owned()
+            )
+        );
     }
 
     #[test]

@@ -140,7 +140,7 @@ impl MatrizBuscaminas {
                 return false;
             }
         }
-        if contador != columnas {
+        if contador != 0 && contador != columnas {
             return false;
         }
         true
@@ -158,7 +158,6 @@ impl MatrizBuscaminas {
             }
             if contador == bytes.len() && *byte != (b'\n') {
                 filas += 1;
-                [bytes, &[b'\n']].concat();
             }
             contador += 1;
         }

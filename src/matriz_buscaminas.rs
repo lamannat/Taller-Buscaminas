@@ -99,7 +99,6 @@ impl MatrizBuscaminas {
     /// ```
     /// #Salida
     /// *2*1
-
     pub fn imprimir_como_buscaminas(&self) {
         let mut contador_columnas = 0;
         for valor in &self.valores {

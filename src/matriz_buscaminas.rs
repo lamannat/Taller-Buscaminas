@@ -136,7 +136,6 @@ impl MatrizBuscaminas {
             } else if *byte == INTERDOT_SECOND_BYTE || *byte == (b'\r') {
                 continue;
             } else {
-                print!("caracter encontrado: {:?}", *byte);
                 return false;
             }
         }
